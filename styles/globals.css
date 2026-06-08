@@ -1,0 +1,148 @@
+/**
+ * styles/globals.css — Creative Core
+ * CSS animations that work alongside Framer Motion.
+ * Marquee, scrollbar hiding, cursor override, base resets.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   CSS VARIABLES — Design System
+───────────────────────────────────────────── */
+:root {
+  --cc-bg:      #080808;
+  --cc-surface: #0f0f0f;
+  --cc-border:  #1e1e1e;
+  --cc-text:    #e8e8e8;
+  --cc-muted:   #666666;
+  --cc-subtle:  #333333;
+  --cc-chrome:  #c8c8c8;
+}
+
+/* ─────────────────────────────────────────────
+   BASE RESETS
+───────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--cc-bg);
+  color: var(--cc-text);
+  cursor: none; /* Hidden — replaced by CustomCursor on desktop */
+}
+
+/* Restore cursor on touch devices — CustomCursor doesn't mount */
+@media (hover: none) {
+  body { cursor: auto; }
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR — hidden but still scrollable
+───────────────────────────────────────────── */
+::-webkit-scrollbar        { display: none; }
+* { scrollbar-width: none; }
+
+/* ─────────────────────────────────────────────
+   SELECTION
+───────────────────────────────────────────── */
+::selection {
+  background: var(--cc-chrome);
+  color: var(--cc-bg);
+}
+
+/* ─────────────────────────────────────────────
+   MARQUEE — CSS-only infinite scroll
+   Used by ProjectMarquee.tsx
+───────────────────────────────────────────── */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform; /* GPU layer — only use on marquee */
+}
+
+.marquee-track--left {
+  animation: marquee-left 40s linear infinite;
+}
+
+.marquee-track--right {
+  animation: marquee-right 48s linear infinite;
+}
+
+/* Pause on hover — applied to the wrapper, not the track */
+.marquee-wrapper:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ─────────────────────────────────────────────
+   MAGNETIC — transition reset for magnetic elements
+   CustomCursor.tsx sets transform inline — this handles
+   the return transition when cursor leaves.
+───────────────────────────────────────────── */
+[data-magnetic] {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: inline-block; /* required for transform to work on inline elements */
+}
+
+/* ─────────────────────────────────────────────
+   CLIP TEXT — utility for clip-path text reveals
+   Use className="clip-text" then animate clipPath via Framer Motion
+───────────────────────────────────────────── */
+.clip-text {
+  display: inline-block;
+  will-change: clip-path;
+}
+
+/* ─────────────────────────────────────────────
+   STAGGER ITEMS — base state (hidden before JS hydrates)
+   Framer Motion overrides these once mounted.
+───────────────────────────────────────────── */
+.motion-safe-hidden {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Override all our animations for reduced-motion users */
+  .marquee-track {
+    animation: none !important;
+  }
+  [data-magnetic] {
+    transition: none !important;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   NAV — active link underline
+───────────────────────────────────────────── */
+.nav-link-active {
+  color: var(--cc-text);
+}
+
+/* ─────────────────────────────────────────────
+   TYPOGRAPHY UTILITIES
+   These complement Tailwind's font-family classes.
+───────────────────────────────────────────── */
+.text-chrome {
+  background: linear-gradient(135deg, #e8e8e8 0%, #999 50%, #e8e8e8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
