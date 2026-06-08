@@ -25,7 +25,7 @@
  *   </AnimatedSection>
  */
 
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
 import {
   fadeUp,
@@ -281,8 +281,9 @@ import { imageCurtain, imageScale } from '@/lib/motion'
 
 interface RevealImageProps {
   children:      ReactNode
-  curtainColor?: string   // matches page bg — default CC black
-  className?:    string   // applied to the outer wrapper
+  curtainColor?: string
+  className?:    string
+  style?:        React.CSSProperties
   delay?:        number
 }
 
@@ -290,6 +291,7 @@ export function RevealImage({
   children,
   curtainColor = '#080808',
   className,
+  style,
   delay = 0,
 }: RevealImageProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -298,7 +300,7 @@ export function RevealImage({
 
   if (prefersReducedMotion) {
     return (
-      <div ref={ref} className={className} style={{ position: 'relative', overflow: 'hidden' }}>
+      <div ref={ref} className={className} style={{ position: 'relative', overflow: 'hidden', ...style }}>
         {children}
       </div>
     )
@@ -308,7 +310,7 @@ export function RevealImage({
     <div
       ref={ref}
       className={className}
-      style={{ position: 'relative', overflow: 'hidden' }}
+      style={{ position: 'relative', overflow: 'hidden', ...style }}
     >
       {/* Image scales as it reveals */}
       <motion.div

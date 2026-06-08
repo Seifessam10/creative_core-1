@@ -1,22 +1,13 @@
 'use client'
 
-/*
-  Hero.tsx — full-viewport homepage hero.
-
-  WHY 'use client':
-  This component uses Framer Motion animations which require the browser.
-  The parent page.tsx (server component) fetches data, then passes it here.
-  This is the standard Next.js pattern: server fetches, client animates.
-*/
-
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
+import { SplitText } from '@/components/ui/AnimatedSection'
 
 export default function Hero() {
-  // Hide the scroll indicator once the user has scrolled past 100px
   const [showScroll, setShowScroll] = useState(true)
 
   useEffect(() => {
@@ -26,24 +17,13 @@ export default function Hero() {
   }, [])
 
   return (
-    /*
-      min-h-screen ensures the hero is at least 100vh.
-      The negative margin-top (-mt-16) pulls it up behind the fixed nav
-      so the hero truly fills the viewport from top to bottom.
-      pt-16 compensates so content doesn't hide under the nav.
-    */
     <section className="relative -mt-16 min-h-screen bg-cc-bg flex flex-col items-center justify-center text-center overflow-hidden">
 
-      {/* ── Logo ─────────────────────────────────────────────────────── */}
-      {/*
-        Animates: starts at opacity 0 + scale 0.95, ends at opacity 1 + scale 1.
-        Scale 0.95→1 gives a subtle "settle in" feeling, not just a flat fade.
-        duration 0.8s is slow enough to feel deliberate.
-      */}
+      {/* ── Logo — scale reveal ──────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
         <Image
           src="/images/cc-logo.webp"
@@ -55,74 +35,59 @@ export default function Hero() {
         />
       </motion.div>
 
-      {/* ── Tagline ───────────────────────────────────────────────────── */}
+      {/* ── Tagline — SplitText character reveal ─────────────────── */}
       {/*
-        Each word is its own motion.span so they animate individually.
-        The stagger is created with delay: 0.4 + index * 0.08.
-        Words: ["WHERE", "DESIGN", "BECOMES", "IDENTITY"] → 4 staggered reveals.
+        SplitText splits each word into individual characters and reveals
+        them one-by-one. Line 1 starts at 400ms, line 2 at 550ms.
+        This creates the cascade feel from the design spec.
       */}
-      <div className="mt-8 flex flex-col items-center gap-1">
-        {/* Line 1 */}
-        <div className="overflow-hidden">
-          <motion.h1
-            className="font-bebas text-[48px] md:text-[80px] leading-none tracking-[0.06em] text-cc-text"
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
-          >
-            WHERE DESIGN
-          </motion.h1>
-        </div>
-
-        {/* Line 2 — slightly later delay for cascade feel */}
-        <div className="overflow-hidden">
-          <motion.h1
-            className="font-bebas text-[48px] md:text-[80px] leading-none tracking-[0.06em] text-cc-text"
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.55, ease: 'easeOut' }}
-          >
-            BECOMES IDENTITY
-          </motion.h1>
-        </div>
+      <div className="mt-8 flex flex-col items-center gap-0">
+        <SplitText
+          text="WHERE DESIGN"
+          delay={0.4}
+          className="font-bebas text-[48px] md:text-[80px] leading-none tracking-[0.06em] text-cc-text block"
+        />
+        <SplitText
+          text="BECOMES IDENTITY"
+          delay={0.55}
+          className="font-bebas text-[48px] md:text-[80px] leading-none tracking-[0.06em] text-cc-text block"
+        />
       </div>
 
-      {/* ── Sub-tagline ───────────────────────────────────────────────── */}
+      {/* ── Sub-tagline ───────────────────────────────────────────── */}
       <motion.p
-        className="mt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-cc-muted"
+        className="mt-5 font-mono text-[11px] uppercase tracking-[0.15em] text-cc-muted"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1 }}
+        transition={{ duration: 0.6, delay: 1.1 }}
       >
         Apparel · Branding · Identity · Creative Direction
       </motion.p>
 
-      {/* ── CTA buttons ───────────────────────────────────────────────── */}
+      {/* ── CTA buttons — data-magnetic activates cursor effect ───── */}
       <motion.div
         className="mt-10 flex items-center gap-4"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 1.2 }}
+        transition={{ duration: 0.5, delay: 1.3 }}
       >
         <Link
           href="/work"
+          data-magnetic
           className="font-mono text-[10px] uppercase tracking-[0.12em] text-cc-text border border-cc-border px-6 py-3 hover:border-cc-subtle transition-colors duration-200"
         >
           View Work
         </Link>
         <Link
           href="/contact"
+          data-magnetic
           className="font-mono text-[10px] uppercase tracking-[0.12em] text-cc-muted hover:text-cc-text transition-colors duration-200"
         >
           Start a Project →
         </Link>
       </motion.div>
 
-      {/* ── Scroll indicator ─────────────────────────────────────────── */}
-      {/*
-        AnimatePresence lets it fade out smoothly when showScroll becomes false.
-        The bounce animation is a CSS keyframe applied via Tailwind `animate-bounce`.
-      */}
+      {/* ── Scroll indicator ─────────────────────────────────────── */}
       <AnimatePresence>
         {showScroll && (
           <motion.div
@@ -130,7 +95,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, delay: 1.5 }}
+            transition={{ duration: 0.3, delay: 1.6 }}
           >
             <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-cc-subtle">scroll</span>
             <motion.div

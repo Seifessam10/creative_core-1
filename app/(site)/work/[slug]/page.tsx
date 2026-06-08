@@ -1,17 +1,3 @@
-/*
-  /work/[slug] — Project Detail Page.
-
-  STATIC GENERATION (generateStaticParams):
-  At build time, Next.js calls generateStaticParams() which returns every
-  project slug from Sanity. Next.js then pre-renders a static HTML file for
-  each slug (e.g. /work/my-brand-project). This means:
-  - Zero server load on visits — it's just a static file
-  - Instant page loads
-  - ISR (revalidate = 60) refreshes these files in the background when content changes
-
-  notFound() → shows the 404 page if a slug doesn't exist in Sanity.
-*/
-
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -25,16 +11,15 @@ import {
 } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
 import ProjectCard, { type ProjectCardData } from '@/components/work/ProjectCard'
+import { AnimatedSection, RevealImage } from '@/components/ui/AnimatedSection'
 
 export const revalidate = 60
 
-// Generates all static paths at build time
 export async function generateStaticParams() {
   const slugs = await sanityFetch<{ slug: string }[]>(getAllProjectSlugsQuery) ?? []
   return slugs.map((s) => ({ slug: s.slug }))
 }
 
-// Generates SEO metadata dynamically per project
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const project = await sanityFetch<ProjectDetail>(getProjectBySlugQuery, { slug: params.slug })
   if (!project) return {}
@@ -49,17 +34,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
-  const [project, related] = await Promise.all([
-    sanityFetch<ProjectDetail>(getProjectBySlugQuery, { slug: params.slug }),
-    sanityFetch<ProjectCardData[]>(getRelatedProjectsQuery, {
-      slug: params.slug,
-      category: 'Apparel', // will be overridden once project loads — see note below
-    }),
-  ])
-
+  const project = await sanityFetch<ProjectDetail>(getProjectBySlugQuery, { slug: params.slug })
   if (!project) notFound()
 
-  // Re-fetch related with the correct category now we know it
   const relatedProjects = await sanityFetch<ProjectCardData[]>(getRelatedProjectsQuery, {
     slug: params.slug,
     category: project.category,
@@ -76,7 +53,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
   return (
     <article className="min-h-screen bg-cc-bg">
 
-      {/* ── Back breadcrumb ──────────────────────────────────────── */}
+      {/* ── Back breadcrumb ─────────────────────────────────────── */}
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-8">
         <Link
           href="/work"
@@ -86,8 +63,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         </Link>
       </div>
 
-      {/* ── Hero image ───────────────────────────────────────────── */}
-      <div className="relative w-full mt-6" style={{ maxHeight: '80vh', height: '70vw' }}>
+      {/* ── Hero image — curtain wipe reveal ─────────────────────── */}
+      <RevealImage className="relative w-full mt-6" style={{ maxHeight: '80vh', minHeight: '50vw' }}>
         {heroUrl && (
           <Image
             src={heroUrl}
@@ -98,7 +75,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
             className="object-cover object-center"
           />
         )}
-        {/* Title overlay — bottom-left, large Bebas Neue */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         <div className="absolute bottom-8 left-6 md:left-12">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-cc-muted mb-2">
@@ -108,14 +84,10 @@ export default async function ProjectPage({ params }: { params: { slug: string }
             {project.title}
           </h1>
         </div>
-      </div>
+      </RevealImage>
 
       {/* ── Meta row ─────────────────────────────────────────────── */}
-      {/*
-        3-column grid for client / category / year.
-        Each separated by a right border except the last.
-      */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+      <AnimatedSection className="max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-3 border border-cc-border mt-8">
           {[
             { label: 'Client', value: project.client ?? '—' },
@@ -128,39 +100,35 @@ export default async function ProjectPage({ params }: { params: { slug: string }
             </div>
           ))}
         </div>
-      </div>
+      </AnimatedSection>
 
       {/* ── Description — Portable Text ──────────────────────────── */}
-      {/*
-        Sanity stores rich text as "Portable Text" — a JSON structure
-        (not HTML). @portabletext/react converts it to React elements.
-        We pass `components` to control how each block type renders.
-      */}
       {project.description && (
-        <div className="max-w-[680px] mx-auto px-6 py-16">
-          <div className="prose prose-invert font-sans text-cc-muted leading-[1.8] text-base">
+        <AnimatedSection className="max-w-[680px] mx-auto px-6 py-16">
+          <div className="font-sans text-cc-muted leading-[1.8] text-base">
             <PortableText
               value={project.description}
               components={{
                 block: {
                   normal: ({ children }) => <p className="mb-4 text-cc-muted">{children}</p>,
-                  h2: ({ children }) => <h2 className="font-bebas text-3xl text-cc-text mt-8 mb-4">{children}</h2>,
+                  h2: ({ children }) => (
+                    <h2 className="font-bebas text-3xl text-cc-text mt-8 mb-4">{children}</h2>
+                  ),
                 },
               }}
             />
           </div>
-        </div>
+        </AnimatedSection>
       )}
 
-      {/* ── Gallery ──────────────────────────────────────────────── */}
+      {/* ── Gallery — each image revealed with curtain wipe ─────── */}
       {project.gallery && project.gallery.length > 0 && (
-        <div className="flex flex-col gap-2 px-0">
+        <div className="flex flex-col gap-2">
           {project.gallery.map((img, i) => {
             const url = img?.asset ? urlFor(img).width(1800).url() : null
             if (!url) return null
-            // Alternate: even index = full width, odd = 2-col grid pair
             return (
-              <div key={i} className="relative w-full aspect-[16/9]">
+              <RevealImage key={i} delay={0} className="relative w-full aspect-[16/9]">
                 <Image
                   src={url}
                   alt={`${project.title} — image ${i + 1}`}
@@ -168,7 +136,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   sizes="100vw"
                   className="object-cover"
                 />
-              </div>
+              </RevealImage>
             )
           })}
         </div>
@@ -177,9 +145,11 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       {/* ── Related projects ─────────────────────────────────────── */}
       {relatedProjects.length > 0 && (
         <section className="max-w-[1400px] mx-auto px-6 md:px-12 py-24">
-          <h2 className="font-bebas text-4xl md:text-5xl tracking-[0.08em] text-cc-text mb-8">
-            More Work
-          </h2>
+          <AnimatedSection variant="clipWipe">
+            <h2 className="font-bebas text-4xl md:text-5xl tracking-[0.08em] text-cc-text mb-8">
+              More Work
+            </h2>
+          </AnimatedSection>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {relatedProjects.map((p, i) => (
               <ProjectCard key={p._id} project={p} index={i} />
@@ -190,24 +160,28 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 
       {/* ── CTA section ──────────────────────────────────────────── */}
       <section className="border-t border-cc-border py-24 text-center">
-        <h2 className="font-bebas text-5xl md:text-7xl tracking-[0.08em] text-cc-text">
-          Like What You See?
-        </h2>
-        <p className="font-sans text-cc-muted mt-4 mb-10">
-          Let&apos;s build something together.
-        </p>
-        <Link
-          href="/contact"
-          className="font-mono text-[10px] uppercase tracking-[0.12em] text-cc-text border border-cc-border px-8 py-4 hover:border-cc-subtle transition-colors duration-200"
-        >
-          Start a Project
-        </Link>
+        <AnimatedSection variant="clipWipe">
+          <h2 className="font-bebas text-5xl md:text-7xl tracking-[0.08em] text-cc-text">
+            Like What You See?
+          </h2>
+        </AnimatedSection>
+        <AnimatedSection delay={0.2}>
+          <p className="font-sans text-cc-muted mt-4 mb-10">
+            Let&apos;s build something together.
+          </p>
+          <Link
+            href="/contact"
+            data-magnetic
+            className="font-mono text-[10px] uppercase tracking-[0.12em] text-cc-text border border-cc-border px-8 py-4 hover:border-cc-subtle transition-colors duration-200"
+          >
+            Start a Project
+          </Link>
+        </AnimatedSection>
       </section>
     </article>
   )
 }
 
-// ── Types ────────────────────────────────────────────────────────────────────
 interface GalleryImage {
   asset: { _ref: string }
   hotspot?: { x: number; y: number }

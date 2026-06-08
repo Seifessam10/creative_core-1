@@ -14,6 +14,7 @@ import { sanityFetch } from '@/lib/sanity/client'
 import { getAllProjectsQuery } from '@/lib/sanity/queries'
 import ProjectGrid from '@/components/work/ProjectGrid'
 import type { ProjectCardData } from '@/components/work/ProjectCard'
+import { AnimatedSection } from '@/components/ui/AnimatedSection'
 
 export const revalidate = 60
 
@@ -34,10 +35,14 @@ export default async function WorkPage({ searchParams }: WorkPageProps) {
     <div className="min-h-screen bg-cc-bg">
       {/* Page heading */}
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-12 pb-6">
-        <h1 className="font-bebas text-6xl md:text-8xl tracking-[0.08em] text-cc-text">Work</h1>
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-cc-muted mt-2">
-          {projects.length} Projects
-        </p>
+        <AnimatedSection variant="clipWipe">
+          <h1 className="font-bebas text-6xl md:text-8xl tracking-[0.08em] text-cc-text">Work</h1>
+        </AnimatedSection>
+        <AnimatedSection delay={0.15}>
+          <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-cc-muted mt-2">
+            {projects.length} Projects
+          </p>
+        </AnimatedSection>
       </div>
 
       {/*

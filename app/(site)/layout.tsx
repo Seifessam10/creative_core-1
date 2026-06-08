@@ -1,22 +1,25 @@
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
+import SmoothScroll from '@/components/ui/SmoothScroll'
+import ScrollProgress from '@/components/ui/ScrollProgress'
+import { CustomCursor } from '@/components/ui/CustomCursor'
 
 /*
-  This layout wraps every page inside app/(site)/ — that means /, /work,
-  /services, /about, and /contact all get the Nav and Footer automatically.
-
-  The studio route at app/(studio)/ has its own separate layout, so it
-  never gets this nav. That's the whole point of route groups in Next.js:
-  you can share layout across some routes but not others without affecting URLs.
-
-  `pt-16` on main pushes page content below the fixed nav (nav height = 64px = 4rem = pt-16).
+  Site layout — wraps all public pages (not the studio).
+  Provides: Nav, Footer, smooth scroll, scroll progress bar, custom cursor.
 */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <SmoothScroll>
+      {/* Chrome progress line — fixed, top of viewport */}
+      <ScrollProgress />
+
+      {/* Magnetic dot + ring cursor — desktop only, hidden on touch */}
+      <CustomCursor />
+
       <Nav />
       <main className="pt-16">{children}</main>
       <Footer />
-    </>
+    </SmoothScroll>
   )
 }

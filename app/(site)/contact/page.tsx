@@ -2,6 +2,7 @@ import { AtSign, Mail } from 'lucide-react'
 import { sanityFetch } from '@/lib/sanity/client'
 import { getSettingsQuery } from '@/lib/sanity/queries'
 import InquiryForm from '@/components/contact/InquiryForm'
+import { AnimatedSection } from '@/components/ui/AnimatedSection'
 
 export const revalidate = 60
 
@@ -27,12 +28,16 @@ export default async function ContactPage() {
 
         {/* Page heading */}
         <div className="mb-12">
-          <h1 className="font-bebas text-[64px] md:text-[96px] tracking-[0.08em] text-cc-text leading-none">
-            Contact
-          </h1>
-          <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-cc-muted mt-2">
-            {isOpen ? 'Currently accepting new projects' : 'Currently at capacity'}
-          </p>
+          <AnimatedSection variant="clipWipe">
+            <h1 className="font-bebas text-[64px] md:text-[96px] tracking-[0.08em] text-cc-text leading-none">
+              Contact
+            </h1>
+          </AnimatedSection>
+          <AnimatedSection delay={0.15}>
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-cc-muted mt-2">
+              {isOpen ? 'Currently accepting new projects' : 'Currently at capacity'}
+            </p>
+          </AnimatedSection>
         </div>
 
         {/* Two-column layout: form left, info right */}
