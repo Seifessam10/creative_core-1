@@ -1,5 +1,5 @@
 # US-01 — Navigation Bar + Mobile Menu
-**Status**: [ ] Todo | **Phase**: 1 | **Priority**: P0 (blocks everything)
+**Status**: [x] Done | **Phase**: 1 | **Priority**: P0 (blocks everything)
 
 ---
 

@@ -60,7 +60,7 @@ export default function MobileMenu({ isOpen, onClose, links, pathname }: MobileM
                 alt="Creative Core"
                 width={48}
                 height={48}
-                className="object-contain"
+                className="object-contain mix-blend-lighten"
               />
             </Link>
             <button

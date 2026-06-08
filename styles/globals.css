@@ -33,12 +33,7 @@ html {
 body {
   background-color: var(--cc-bg);
   color: var(--cc-text);
-  cursor: none; /* Hidden — replaced by CustomCursor on desktop */
-}
-
-/* Restore cursor on touch devices — CustomCursor doesn't mount */
-@media (hover: none) {
-  body { cursor: auto; }
+  /* cursor: none; — uncomment when CustomCursor is added in Phase 2 */
 }
 
 /* ─────────────────────────────────────────────

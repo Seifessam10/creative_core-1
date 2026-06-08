@@ -91,7 +91,7 @@ export default function Nav() {
               width={48}
               height={48}
               priority
-              className="object-contain"
+              className="object-contain mix-blend-lighten"
             />
           </Link>
 
