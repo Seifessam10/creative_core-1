@@ -1,4 +1,4 @@
-import { groq } from 'groq'
+import groq from 'groq'
 
 // ── Hero marquee ──────────────────────────────────────────────────────────────
 export const getFeaturedProjectsQuery = groq`
